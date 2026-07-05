@@ -1,5 +1,7 @@
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
 
 NUMERIC_FEATURES = [
     "duration",
@@ -48,3 +50,20 @@ def build_preprocessor() -> ColumnTransformer:
     )
 
     return preprocessor
+
+
+def build_pipeline() -> Pipeline:
+    """
+    Combines the ColumnTransformer preprocessor with a
+    Logistic Regression model into a single fittable object.
+    """
+    preprocessor = build_preprocessor()
+
+    model = LogisticRegression(max_iter=1000, random_state=7)
+
+    pipeline = Pipeline(steps=[
+        ("preprocessor", preprocessor),
+        ("classifier", model),
+    ])
+
+    return pipeline
