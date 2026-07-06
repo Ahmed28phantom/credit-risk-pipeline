@@ -1,7 +1,8 @@
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
+from imblearn.pipeline import Pipeline
+from imblearn.over_sampling import SMOTE
 
 NUMERIC_FEATURES = [
     "duration",
@@ -52,18 +53,21 @@ def build_preprocessor() -> ColumnTransformer:
     return preprocessor
 
 
-def build_pipeline() -> Pipeline:
+def build_pipeline(use_smote: bool = False) -> Pipeline:
     """
     Combines the ColumnTransformer preprocessor with a
-    Logistic Regression model into a single fittable object.
+    Logistic Regression model. If use_smote=True, inserts a
+    SMOTE step after preprocessing to rebalance classes
+    during training only (skipped automatically at predict time).
     """
     preprocessor = build_preprocessor()
-
     model = LogisticRegression(max_iter=1000, random_state=7)
 
-    pipeline = Pipeline(steps=[
-        ("preprocessor", preprocessor),
-        ("classifier", model),
-    ])
+    steps = [("preprocessor", preprocessor)]
 
-    return pipeline
+    if use_smote:
+        steps.append(("smote", SMOTE(random_state=7)))
+
+    steps.append(("classifier", model))
+
+    return Pipeline(steps=steps)
