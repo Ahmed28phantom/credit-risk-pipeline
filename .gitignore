@@ -2,6 +2,7 @@ data/raw/
 data/processed/
 models/
 mlruns/
+mlflow.db
 __pycache__/
 *.pyc
 .DS_Store
