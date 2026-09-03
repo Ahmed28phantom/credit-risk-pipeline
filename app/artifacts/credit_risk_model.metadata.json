@@ -1,0 +1,43 @@
+{
+  "algorithm": "LogisticRegression + SMOTE (tuned via RandomizedSearchCV)",
+  "best_params": {
+    "classifier__C": 0.010574149626882936,
+    "classifier__penalty": "l2",
+    "classifier__solver": "liblinear"
+  },
+  "cv_best_score_business_cost": 105.2,
+  "optimal_threshold": 0.37,
+  "test_business_cost": 96,
+  "test_business_cost_default_threshold": 99,
+  "test_auc_roc": 0.8448809523809523,
+  "random_state": 7,
+  "created_utc": "2026-07-20T14:53:17.067204+00:00",
+  "library_versions": {
+    "scikit_learn": "1.9.0",
+    "imbalanced_learn": "0.14.2",
+    "joblib": "1.5.3",
+    "python": "3.11.7"
+  },
+  "comparison": {
+    "logistic_regression_smote_baseline": {
+      "business_cost": 108,
+      "auc_roc": 0.8241666666666666
+    },
+    "random_forest_smote": {
+      "business_cost": 181,
+      "auc_roc": 0.8158928571428571
+    },
+    "xgboost_smote": {
+      "business_cost": 154,
+      "auc_roc": 0.7878571428571428
+    },
+    "logistic_regression_smote_tuned": {
+      "business_cost": 99,
+      "auc_roc": 0.8448809523809523
+    },
+    "logistic_regression_smote_tuned_optimal_threshold": {
+      "business_cost": 96,
+      "auc_roc": 0.8448809523809523
+    }
+  }
+}

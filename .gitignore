@@ -1,6 +1,8 @@
 data/raw/
 data/processed/
 models/
+# Exception: app/artifacts/ holds the deploy-critical model + metadata the
+# Streamlit app loads, and is deliberately tracked (it sits outside models/).
 mlruns/
 mlflow.db
 __pycache__/

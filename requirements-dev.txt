@@ -1,0 +1,10 @@
+# Full environment for reproducing the notebooks (EDA, baseline, modeling).
+# Installs the app runtime plus training/experiment-tracking tooling.
+-r requirements.txt
+
+matplotlib==3.10.9
+seaborn==0.13.2
+scipy==1.17.1
+xgboost==3.2.0
+shap==0.51.0
+mlflow==3.13.0

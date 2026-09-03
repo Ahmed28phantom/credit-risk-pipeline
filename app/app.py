@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -10,7 +11,13 @@ sys.path.append(str(project_root))
 
 from src.preprocessing import CATEGORICAL_FEATURES, NUMERIC_FEATURES
 
-MODEL_PATH = project_root / "models" / "credit_risk_model.joblib"
+ARTIFACTS_DIR = Path(__file__).resolve().parent / "artifacts"
+MODEL_PATH = ARTIFACTS_DIR / "credit_risk_model.joblib"
+METADATA_PATH = ARTIFACTS_DIR / "credit_risk_model.metadata.json"
+
+# Fallback used only if metadata is unreadable; the tuned value lives in the
+# metadata file written alongside the model at training time.
+DEFAULT_THRESHOLD = 0.37
 
 NUMERIC_INPUTS = {
     "duration": {
@@ -122,6 +129,15 @@ def load_model():
     return joblib.load(MODEL_PATH)
 
 
+@st.cache_data
+def load_metadata():
+    """Training-time metadata, including the cost-optimal decision threshold."""
+    try:
+        return json.loads(METADATA_PATH.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
 st.set_page_config(page_title="Credit Risk Predictor")
 st.title("Credit Risk Predictor")
 st.caption("Estimate default risk for a loan applicant using the tuned Logistic Regression model.")
@@ -139,6 +155,15 @@ if not MODEL_PATH.exists():
     st.stop()
 
 model = load_model()
+metadata = load_metadata()
+threshold = metadata.get("optimal_threshold", DEFAULT_THRESHOLD)
+
+st.caption(
+    f"Decisions use a tuned probability threshold of {threshold:.2f} rather than the "
+    "default 0.50, chosen to minimise the business cost of 5x(false negative) + "
+    "1x(false positive) \u2014 missing a defaulter is far costlier than declining a good "
+    "applicant."
+)
 
 with st.form("credit_risk_form"):
     numeric_values = {}
@@ -169,10 +194,11 @@ if submitted:
     input_df = pd.DataFrame([input_row], columns=NUMERIC_FEATURES + CATEGORICAL_FEATURES)
 
     proba_bad = model.predict_proba(input_df)[0, 1]
-    prediction = model.predict(input_df)[0]
+    prediction = int(proba_bad >= threshold)
 
     st.subheader("Result")
     if prediction == 1:
         st.error(f"Predicted: Bad credit risk (probability of default: {proba_bad:.1%})")
     else:
         st.success(f"Predicted: Good credit risk (probability of default: {proba_bad:.1%})")
+    st.caption(f"Classified against the tuned threshold of {threshold:.2f}.")
